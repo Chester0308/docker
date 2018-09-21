@@ -1,0 +1,26 @@
+filebeat.prospectors:
+- type: log
+  enabled: true
+  close_inactive: 30m
+  ignore_older: 31m 
+  paths:
+    - /var/log/sample-log/*.log
+  fields:
+    log_type: "sample_log"
+#  json.keys_under_root: true
+#  json.message_key: message
+
+output.logstash:
+  hosts: ["logstash:5045"]
+
+# output for elastic search
+#output.elasticsearch:
+#  indices:
+#    - index: "sample-%{+yyyy.MM.dd}"
+#      when.equals:
+#        fields.log_type: "sample_log"
+
+# elastic cloud
+#cloud.id: "<cloud_id>"
+#cloud.auth: "<user_name>:<password>"
+

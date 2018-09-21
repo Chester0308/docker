@@ -1,0 +1,51 @@
+version: "3"
+
+volumes:
+    es_data:
+    es_data_backups:
+
+services:
+    # Elasticsearch returns query results for KPI CP
+    elasticsearch:
+        build: docker/es
+        volumes:
+            - ./docker/es/config:/usr/share/elasticsearch/config
+            - es_data:/usr/share/elasticsearch/data
+            - es_data_backups:/usr/share/elasticsearch/backups
+        ports:
+            - 9200:9200
+        ulimits:
+            nofile:
+                soft: 65536
+                hard: 65536
+    
+    # Kibana provides KPI CP
+    kibana:
+        build: docker/kibana
+        links:
+            - elasticsearch:elasticsearch
+        ports:
+            - 5601:5601
+    
+    # Logstash receives incoming log data from the beats
+    logstash:
+        build: docker/logstash
+        volumes:
+            - ./docker/logstash/pipeline:/usr/share/logstash/pipeline
+            - ./docker/logstash/config/pipelines.yml:/usr/share/logstash/config/pipelines.yml
+            - ./docker/logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
+        ports:
+            - 5044:5044
+            - 5045:5045
+        links:
+            - elasticsearch:elasticsearch
+    
+    # Filebeat sends log data to logstash
+    filebeat:
+        build: docker/filebeat
+        volumes:
+            - ./docker/filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml
+            - ./data/log:/var/log/sample-log
+        links:
+            - logstash:logstash
+            - elasticsearch:elasticsearch
