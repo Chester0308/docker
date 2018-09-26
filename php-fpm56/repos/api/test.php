@@ -1,0 +1,2 @@
+hoge
+<? echo phpinfo();

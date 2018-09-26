@@ -1,0 +1,63 @@
+version: '3'
+
+volumes:
+    db-data:
+
+services:
+
+    nginx:
+        build: docker/nginx
+        ports:
+            - "80:80"
+            - "443:443"
+        links:
+            - web
+
+    web:
+        build: docker/php-fpm56
+        volumes:
+            - ./repos/api:/var/www/api
+        links:
+            - db
+#            - memcached
+#            - redis
+        environment:
+            DATABASE_HOST: 'db'
+            DATABASE_NAME: 'sample'
+            DATABASE_USER: 'user'
+            DATABASE_PASSWORD: 'secret'
+
+    db:
+        image: mariadb:latest
+        environment:
+            - MYSQL_ROOT_PASSWORD=secret
+            - MYSQL_USER=user
+            - MYSQL_PASSWORD=secret
+        ports:
+            - "33061:3306"
+        volumes:
+            - db-data:/var/lib/mysql
+            - ./docker/db/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+        command: --sql_mode=""
+
+#  memcached:
+#    image: memcached:1.4
+#
+#  redis:
+#    image: redis:latest
+#
+#  mysql:
+#    image: mysql:5.7
+#    environment:
+#      MYSQL_ROOT_USER: root
+#      MYSQL_ROOT_PASSWORD: password
+#      MYSQL_DATABASE: mysql_database
+#      MYSQL_USER: mysql_user
+#      MYSQL_PASSWORD: mysql_pw
+#    ports:
+#      - "13306:3306"
+#    volumes_from:
+#      - data
+#    volumes:
+#      - ../application:/docker-entrypoint-initdb.d
+#    container_name: mysql
