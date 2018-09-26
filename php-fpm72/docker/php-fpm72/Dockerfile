@@ -1,4 +1,4 @@
-FROM php:5.6.29-fpm
+FROM php:7.2-fpm
 
 ADD ./settings/php.ini /usr/local/etc/php/conf.d/php.ini
 

@@ -14,7 +14,7 @@ services:
             - web
 
     web:
-        build: docker/php-fpm56
+        build: docker/php-fpm72
         volumes:
             - ./repos/api:/var/www/api
         links:
